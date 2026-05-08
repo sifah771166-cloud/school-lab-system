@@ -1,0 +1,128 @@
+// This is a school laboratory management system
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  name          String
+  role          String   @default("USER") // USER, ADMIN_JURUSAN, SUPER_ADMIN
+  departmentId  String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  attendances   Attendance[]
+  loans         Loan[]
+  loansApproved Loan[] @relation("LoanApprover")
+  schedulesCreated Schedule[] @relation("ScheduleCreator")
+
+  @@map("users")
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  users     User[]
+  labs      Lab[]
+
+  @@map("departments")
+}
+
+model Lab {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  departmentId  String
+  department    Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  items         Item[]
+  schedules     Schedule[]
+
+  @@unique([name, departmentId])
+  @@map("labs")
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  quantity    Int      @default(0)
+  labId       String
+  lab         Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  loans       Loan[]
+
+  @@map("items")
+}
+
+model Schedule {
+  id        String    @id @default(uuid())
+  labId     String
+  lab       Lab       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  title     String?
+  date      DateTime  // specific date (ignore time part)
+  startTime String    // "HH:mm"
+  endTime   String    // "HH:mm"
+  createdBy String
+  creator   User      @relation("ScheduleCreator", fields: [createdBy], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("schedules")
+}
+
+model Attendance {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teacherName   String    // Nama guru yang mengajar
+  classTeaching String    // Kelas yang diajar (e.g., "XII RPL 1")
+  startTime     String    // Jam mulai (HH:MM format)
+  endTime       String    // Jam selesai (HH:MM format)
+  date          String    // Tanggal kunjungan (YYYY-MM-DD)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("attendances")
+}
+
+model Loan {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId      String
+  item        Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  quantity    Int
+  status      String    @default("pending") // pending, approved, rejected, returned, overdue
+  requestNote String?
+  approvedBy  String?
+  approver    User?     @relation("LoanApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+  approvedAt  DateTime?
+  returnedAt  DateTime?
+  dueDate     DateTime?
+  rejectionReason String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("loans")
+}

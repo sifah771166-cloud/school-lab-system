@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: labadmin
+      POSTGRES_PASSWORD: labpass
+      POSTGRES_DB: school_lab
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5000"
+    environment:
+      DATABASE_URL: postgresql://labadmin:labpass@postgres:5432/school_lab
+      JWT_SECRET: your-prod-secret
+      JWT_EXPIRES_IN: 7d
+      PORT: 5000
+      NODE_ENV: production
+      FRONTEND_URL: http://localhost
+    depends_on:
+      - postgres
+    command: >
+      sh -c "npx prisma migrate deploy && node src/server.js"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
