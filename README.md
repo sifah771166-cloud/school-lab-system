@@ -1,55 +1,79 @@
 # School Laboratory Management System
 
-A modern, multi-department, role-based web application for managing school laboratories, inventory, schedules, attendance (kunjungan), and item loans.
+A modern, multi-department, role-based web application untuk mengelola laboratorium sekolah kejuruan dan universitas. Sistem ini mendukung manajemen lab, inventaris, jadwal, attendance (kunjungan), dan peminjaman barang dengan level akses super admin, admin jurusan, dan user.
 
-Sistem ini dibuat untuk sekolah kejuruan dan universitas dengan kebutuhan:
-- beberapa jurusan (departments)
-- admin jurusan yang hanya mengelola jurusannya sendiri
-- super admin yang mengelola seluruh sistem
-- user biasa yang bisa melakukan kunjungan dan peminjaman barang
+## 🚀 Ringkasan
+- **Frontend:** React 18 + Vite + Tailwind CSS
+- **Backend:** Node.js + Express.js + Prisma + PostgreSQL
+- **Authentication:** JWT + bcrypt
+- **Deployment:** Docker + Docker Compose
+- **Role-based access control:** SUPER_ADMIN, ADMIN_JURUSAN, USER
+- **Multi-department support:** 7 jurusan dengan isolasi data per jurusan
 
-## Status Saat Ini
-- Frontend: running di `http://localhost`
-- Backend API: running di `http://localhost:5001/api/v1`
-- PostgreSQL: running di `localhost:5432`
-- Aplikasi sudah ter-deploy dengan Docker Compose dan siap dipakai.
+## 📌 Status Saat Ini
+- Frontend: berjalan di `http://localhost`
+- Backend API: berjalan di `http://localhost:5001/api/v1`
+- PostgreSQL: berjalan di `localhost:5432`
+- Aplikasi sudah ter-deploy dengan Docker Compose dan siap dipakai
 
-## Struktur Singkat
-- `backend/` - API Express.js + Prisma + PostgreSQL
-- `frontend/` - React + Vite + Tailwind CSS
-- `docker-compose.yml` - layanan frontend, backend, database
+## 🏗️ Arsitektur Sistem
 
-## Fitur Utama
+### Tech Stack
+| Layer | Technology | Keterangan |
+|-------|------------|------------|
+| Frontend | React 18 + Vite + Tailwind CSS | UI/UX modern dan responsive |
+| Backend | Node.js + Express.js | RESTful API |
+| Database | PostgreSQL | Penyimpanan data |
+| ORM | Prisma | Manajemen schema dan migration |
+| Auth | JWT + bcrypt | Otentikasi dan authorization |
+| Deployment | Docker + Docker Compose | Containerized environment |
+
+### Struktur Database Singkat
+- `Users`: 27 akun total
+  - 1 SUPER_ADMIN
+  - 7 ADMIN_JURUSAN
+  - 19 USER
+- `Departments`: 7 jurusan
+- `Labs`: 20 lab total
+- `Items`: inventaris per lab
+- `Schedules`: jadwal penggunaan lab
+- `Attendance`: catatan kunjungan lab
+- `Loans`: peminjaman barang
+
+## 🎯 Fitur Utama
 - Role-based access control (RBAC)
 - Multi-department / multi-lab support
-- Manajemen lab, item, jadwal, attendance, dan peminjaman
+- CRUD labs, items, schedules, attendance, loans
 - JWT authentication + bcrypt password hashing
 - Validasi input backend dengan Zod
 - Proteksi route frontend menurut role
-- Export CSV dan print pada beberapa halaman admin
+- Export CSV dan print untuk data admin
 - Sidebar dinamis sesuai role
 - Dockerized deployment
 
-## Role dan Akses
+## 👥 Role & Permissions
+
 ### SUPER_ADMIN
-- Akses penuh ke semua fitur
-- Lihat/kelola semua jurusan, lab, barang, jadwal, kunjungan, dan peminjaman
-- Bisa membuat user baru
+- Akses penuh ke seluruh sistem
+- Kelola semua departments, labs, items, schedules, attendance, loans
+- Buat user baru dan kelola semua akun
+- Full CRUD di semua modul
 
 ### ADMIN_JURUSAN
-- Akses hanya untuk jurusannya sendiri
-- Kelola lab, barang, jadwal, dan kunjungan di jurusan sendiri
+- Akses terbatas pada jurusan sendiri
+- Kelola lab, items, schedules, attendance, dan loans untuk jurusan sendiri
 - Tidak bisa mengakses data jurusan lain
+- Tidak bisa membuat user baru
 
 ### USER
-- Akses terbatas
-- Dashboard informasi
-- Kunjungan (attendance)
-- Peminjaman barang (loans)
-- Tidak bisa akses halaman admin jurusan atau super admin
+- Akses personal terbatas
+- Melihat dashboard informasi
+- Melakukan kunjungan (attendance)
+- Mengajukan peminjaman barang (loans)
+- Tidak bisa akses halaman admin
 
-## Kredensial Default
-Password akun sekarang dibedakan per role dan per jurusan.
+## 🔐 Kredensial Default
+Password akun sudah dibedakan per role dan per jurusan.
 
 ### Super Admin
 - Email: `admin@school.com`
@@ -86,8 +110,36 @@ Password akun sekarang dibedakan per role dan per jurusan.
 - `userumum1@school.com` / Password: `userumum1`
 - `userumum2@school.com` / Password: `userumum2`
 
-## Cara Menjalankan
-### Jalankan dengan Docker Compose
+## 🚀 Cara Menjalankan
+
+### Development Mode
+```bash
+# Clone repository
+git clone https://github.com/sifah771166-cloud/school-lab-system.git
+cd school-lab-system
+
+# Setup environment
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+# Install dependencies
+npm install
+npm --prefix backend install
+npm --prefix frontend install
+
+# Start database
+docker-compose up -d postgres
+
+# Setup database
+cd backend
+npx prisma migrate deploy
+npm run prisma:seed
+
+# Jalankan aplikasi
+npm run dev
+```
+
+### Production Mode (Docker)
 ```bash
 docker-compose up -d
 ```
@@ -108,60 +160,222 @@ docker-compose build --no-cache
 docker-compose up -d
 ```
 
-### Jalankan Seed Data
-Jika ingin memperbarui akun ke kredensial baru, jalankan seed di backend:
+### Menjalankan Seed Data
 ```bash
 cd backend
 npm run prisma:seed
 ```
 
-## Catatan Penting
-- Ganti password default segera setelah login pertama kali
-- Untuk production, ganti `JWT_SECRET` di konfigurasi environment
-- Backup database secara berkala
-- Jika port 80, 5001, atau 5432 konflik, ubah port pada `docker-compose.yml`
+## ⚙️ Konfigurasi Environment
 
-## Multi-Department dan Kunjungan
-- Sistem mendukung 7 jurusan dengan lab khusus untuk masing-masing jurusan
-- Admin jurusan hanya melihat data jurusan sendiri
-- Kunjungan (attendance) dibuat sebagai catatan kunjungan sederhana dengan field: nama guru, kelas yang diajar, jam mulai, jam selesai, dan tanggal
-- Super admin bisa melihat semua kunjungan; admin jurusan hanya bisa melihat kunjungan jurusannya
-
-## Pengujian dan Verifikasi
-- Semua admin jurusan sudah diverifikasi berfungsi sesuai role
-- Role isolation sudah diuji: admin tidak bisa mengakses jurusan lain
-- Sidebar dan route sudah disesuaikan dengan role
-- Fitur attendance, peminjaman, dan manajemen inventaris sudah berjalan
-
-## Troubleshooting
-### Tidak bisa akses frontend
-1. Cek status container:
-   ```bash
-docker-compose ps
-```
-2. Cek logs frontend:
-   ```bash
-docker-compose logs -f frontend
-```
-3. Jika cache browser bermasalah, refresh paksa `Cmd+Shift+R`
-
-### Tidak bisa akses API
-1. Cek port backend 5001:
-   ```bash
-docker-compose ps
-```
-2. Cek logs backend:
-   ```bash
-docker-compose logs -f backend
+### Backend (.env)
+```env
+PORT=5000
+NODE_ENV=development
+DATABASE_URL=postgresql://labadmin:labpass@localhost:5432/school_lab
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+FRONTEND_URL=http://localhost:5173
 ```
 
-### Database error
-1. Cek logs PostgreSQL:
-   ```bash
-docker-compose logs -f postgres
+### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:5000/api/v1
 ```
-2. Jalankan migration jika perlu:
-   ```bash
+
+### Docker Environment
+Database credentials didefinisikan di `docker-compose.yml`:
+- Username: `labadmin`
+- Password: `labpass`
+- Database: `school_lab`
+
+## 📡 API Endpoints
+
+### Authentication
+- `POST /api/v1/auth/login` - Login user
+- `POST /api/v1/auth/register` - Register user (SUPER_ADMIN only)
+
+### Departments
+- `GET /api/v1/departments` - List departments
+- `POST /api/v1/departments` - Create department
+- `PUT /api/v1/departments/:id` - Update department
+- `DELETE /api/v1/departments/:id` - Delete department
+
+### Labs
+- `GET /api/v1/labs` - List labs
+- `POST /api/v1/labs` - Create lab
+- `PUT /api/v1/labs/:id` - Update lab
+- `DELETE /api/v1/labs/:id` - Delete lab
+
+### Items
+- `GET /api/v1/items` - List items
+- `POST /api/v1/items` - Create item
+- `PUT /api/v1/items/:id` - Update item
+- `DELETE /api/v1/items/:id` - Delete item
+
+### Schedules
+- `GET /api/v1/schedules` - List schedules
+- `POST /api/v1/schedules` - Create schedule
+- `PUT /api/v1/schedules/:id` - Update schedule
+- `DELETE /api/v1/schedules/:id` - Delete schedule
+
+### Attendance
+- `GET /api/v1/attendance` - List attendance
+- `POST /api/v1/attendance` - Create attendance
+- `PUT /api/v1/attendance/:id` - Update attendance
+- `DELETE /api/v1/attendance/:id` - Delete attendance
+
+### Loans
+- `GET /api/v1/loans` - List loans
+- `POST /api/v1/loans` - Create loan
+- `PUT /api/v1/loans/:id` - Update loan
+- `DELETE /api/v1/loans/:id` - Delete loan
+```
+
+## 📁 Struktur Repository
+
+```
+school-lab-system/
+├── .gitignore
+├── README.md
+├── info.md
+├── docker-compose.yml
+├── package.json
+├── backend/
+│   ├── .env.example
+│   ├── dockerfile
+│   ├── package.json
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   ├── seed.js
+│   │   └── migrations/
+│   └── src/
+│       ├── app.js
+│       ├── server.js
+│       ├── config/
+│       ├── middleware/
+│       ├── modules/
+│       └── utils/
+└── frontend/
+    ├── .env.example
+    ├── dockerfile
+    ├── package.json
+    ├── vite.config.js
+    ├── tailwind.config.js
+    └── src/
+        ├── App.jsx
+        ├── main.jsx
+        ├── components/
+        ├── pages/
+        ├── context/
+        ├── hooks/
+        ├── routes/
+        ├── services/
+        └── utils/
+```
+
+## 👥 Setup untuk Kolaborator
+
+Ketika orang lain clone repository ini:
+
+### 1. Setup Environment
+```bash
+# Backend
+cd backend
+cp .env.example .env
+# Edit .env dengan database URL dan JWT secret
+
+# Frontend
+cd ../frontend
+cp .env.example .env
+# Edit jika perlu
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+npm --prefix backend install
+npm --prefix frontend install
+```
+
+### 3. Setup Database
+```bash
 cd backend
 npx prisma migrate deploy
+npm run prisma:seed
 ```
+
+### 4. Jalankan Aplikasi
+```bash
+npm run dev
+```
+
+## 🧪 Pengujian dan Verifikasi
+- Semua admin jurusan sudah diverifikasi sesuai role
+- Role isolation sudah diuji: admin tidak dapat akses data jurusan lain
+- Sidebar dan route telah disesuaikan dengan level akses
+- Fitur attendance, peminjaman, dan manajemen inventaris berfungsi
+
+## 🛠️ Troubleshooting
+
+### Database Connection Issues
+```bash
+# Check if PostgreSQL is running
+docker-compose ps
+
+# Restart database
+docker-compose restart postgres
+
+# Reset database
+docker-compose down -v
+docker-compose up -d postgres
+cd backend
+npx prisma migrate reset --force
+npm run prisma:seed
+```
+
+### Port Conflicts
+```bash
+# Check port usage
+lsof -i :5000
+lsof -i :5173
+```
+
+### Build Issues
+```bash
+# Clear caches
+rm -rf node_modules package-lock.json
+rm -rf backend/node_modules backend/package-lock.json
+rm -rf frontend/node_modules frontend/package-lock.json
+
+# Reinstall
+npm install
+npm --prefix backend install
+npm --prefix frontend install
+```
+
+## 📈 Roadmap & Future Enhancements
+
+### Phase 2 (Soon)
+- [ ] Email notifications untuk approvals
+- [ ] Dashboard analytics dengan charts
+- [ ] Bulk import/export data
+- [ ] API documentation dengan Swagger
+- [ ] Unit tests dan integration tests
+
+### Phase 3 (Future)
+- [ ] Mobile app companion
+- [ ] Real-time notifications
+- [ ] Advanced reporting
+- [ ] Integration dengan external systems
+- [ ] Multi-language support
+
+## 📞 Support & Contact
+Untuk pertanyaan atau issue:
+- review README.md untuk setup instructions
+- gunakan GitHub Issues untuk bug
+- buat issue baru jika menemukan bug
+
+**Project Status**: ✅ **PRODUCTION READY**
+
+*Last updated: 8 Mei 2026*
