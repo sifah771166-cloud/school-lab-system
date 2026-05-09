@@ -1,0 +1,37 @@
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "healthcheckPath": "/api/v1/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE"
+  },
+  "services": {
+    "backend": {
+      "source": "backend",
+      "buildCommand": "npm ci && npx prisma generate",
+      "startCommand": "npx prisma migrate deploy && npm start",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "5000",
+        "JWT_EXPIRES_IN": "7d"
+      }
+    },
+    "frontend": {
+      "source": "frontend",
+      "buildCommand": "npm ci && npm run build",
+      "startCommand": "npm start",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "3000"
+      }
+    }
+  },
+  "databases": {
+    "postgres": {
+      "database": "school_lab",
+      "version": "15"
+    }
+  }
+}

@@ -47,9 +47,55 @@ A modern, multi-department, role-based web application untuk mengelola laborator
 - JWT authentication + bcrypt password hashing
 - Validasi input backend dengan Zod
 - Proteksi route frontend menurut role
-- Export CSV dan print untuk data admin
-- Sidebar dinamis sesuai role
-- Dockerized deployment
+## 🚀 Deployment ke Railway
+
+### Persiapan
+1. **Push kode ke GitHub**: Pastikan semua perubahan di-commit dan di-push ke repository GitHub Anda.
+
+2. **Buat akun Railway**: Daftar di [railway.app](https://railway.app) jika belum punya.
+
+### Deploy Database
+1. Di Railway dashboard, buat project baru.
+2. Tambahkan PostgreSQL database.
+3. Catat DATABASE_URL dari environment variables.
+
+### Deploy Backend
+1. Buat service baru untuk backend.
+2. Connect ke GitHub repo Anda.
+3. Set root directory ke `backend/`.
+4. Set build command: `npm ci && npx prisma generate`
+5. Set start command: `npx prisma migrate deploy && npm start`
+6. Set environment variables:
+   - `NODE_ENV=production`
+   - `PORT=5000`
+   - `JWT_SECRET=<generate-random-secret>`
+   - `JWT_EXPIRES_IN=7d`
+   - `DATABASE_URL=<dari-postgres-service>`
+   - `FRONTEND_URL=<url-frontend-nanti>`
+
+### Deploy Frontend
+1. Buat service baru untuk frontend.
+2. Connect ke GitHub repo Anda.
+3. Set root directory ke `frontend/`.
+4. Set build command: `npm ci && npm run build`
+5. Set start command: `npm run preview`
+6. Set environment variables:
+   - `NODE_ENV=production`
+   - `VITE_API_URL=<backend-url>/api/v1`
+
+### Konfigurasi
+- Pastikan backend URL diakses oleh frontend.
+- Jika perlu, enable CORS di backend untuk frontend domain.
+- Test health check di `/api/v1/health`.
+
+### Akses Aplikasi
+- Frontend: URL dari Railway frontend service
+- Backend API: URL dari Railway backend service + `/api/v1`
+
+### Troubleshooting
+- Cek logs di Railway dashboard.
+- Pastikan DATABASE_URL benar.
+- Untuk Prisma, pastikan migration berhasil dijalankan.
 
 ## 👥 Role & Permissions
 

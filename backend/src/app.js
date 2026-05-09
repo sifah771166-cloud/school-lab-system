@@ -52,7 +52,7 @@ app.use('/api/v1/attendance', attendanceRoutes);
 app.use('/api/v1/loans', loanRoutes);
 
 // Health check
-app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+app.get('/api/v1/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
