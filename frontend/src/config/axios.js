@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+const baseURL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api/v1' : undefined);
+
+if (!baseURL) {
+  throw new Error('VITE_API_URL is not defined. Set it in your Railway frontend service variables.');
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
