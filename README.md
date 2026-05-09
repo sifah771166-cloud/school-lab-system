@@ -47,20 +47,19 @@ A modern, multi-department, role-based web application untuk mengelola laborator
 - JWT authentication + bcrypt password hashing
 - Validasi input backend dengan Zod
 - Proteksi route frontend menurut role
-## 🚀 Deployment ke Railway
+## 🚀 Deployment ke Railway (Separate Projects)
 
 ### Persiapan
 1. **Push kode ke GitHub**: Pastikan semua perubahan di-commit dan di-push ke repository GitHub Anda.
-
 2. **Buat akun Railway**: Daftar di [railway.app](https://railway.app) jika belum punya.
 
 ### Deploy Database
-1. Di Railway dashboard, buat project baru.
+1. Di Railway dashboard, buat project baru (misal: "school-lab-db").
 2. Tambahkan PostgreSQL database.
-3. Catat DATABASE_URL dari environment variables.
+3. Catat DATABASE_URL dari environment variables (akan digunakan oleh backend).
 
 ### Deploy Backend
-1. Buat service baru untuk backend.
+1. Buat project baru di Railway (misal: "school-lab-backend").
 2. Connect ke GitHub repo Anda.
 3. Set root directory ke `backend/`.
 4. Set build command: `npm ci && npx prisma generate`
@@ -68,34 +67,37 @@ A modern, multi-department, role-based web application untuk mengelola laborator
 6. Set environment variables:
    - `NODE_ENV=production`
    - `PORT=5000`
-   - `JWT_SECRET=<generate-random-secret>`
+   - `JWT_SECRET=<generate-random-secret-32-chars>`
    - `JWT_EXPIRES_IN=7d`
-   - `DATABASE_URL=<dari-postgres-service>`
-   - `FRONTEND_URL=<url-frontend-nanti>`
+   - `DATABASE_URL=<dari-db-project>`
+   - `FRONTEND_URL=<url-frontend-project-nanti>`
+7. Deploy dan catat URL backend (misal: `https://school-lab-backend.up.railway.app`)
 
 ### Deploy Frontend
-1. Buat service baru untuk frontend.
+1. Buat project baru di Railway (misal: "school-lab-frontend").
 2. Connect ke GitHub repo Anda.
 3. Set root directory ke `frontend/`.
 4. Set build command: `npm ci && npm run build`
-5. Set start command: `npm run preview`
+5. Set start command: `npm start`
 6. Set environment variables:
    - `NODE_ENV=production`
-   - `VITE_API_URL=<backend-url>/api/v1`
+   - `VITE_API_URL=<backend-url>/api/v1` (misal: `https://school-lab-backend.up.railway.app/api/v1`)
+7. Deploy.
 
-### Konfigurasi
-- Pastikan backend URL diakses oleh frontend.
-- Jika perlu, enable CORS di backend untuk frontend domain.
-- Test health check di `/api/v1/health`.
+### Konfigurasi Tambahan
+- **CORS**: Jika perlu, pastikan backend mengizinkan origin dari frontend URL.
+- **Health Check**: Backend punya endpoint `/api/v1/health` untuk monitoring.
+- **Database Sharing**: Railway memungkinkan share database antar projects dalam satu team.
 
 ### Akses Aplikasi
-- Frontend: URL dari Railway frontend service
-- Backend API: URL dari Railway backend service + `/api/v1`
+- Frontend: URL dari project frontend (misal: `https://school-lab-frontend.up.railway.app`)
+- Backend API: URL dari project backend + `/api/v1`
 
 ### Troubleshooting
-- Cek logs di Railway dashboard.
-- Pastikan DATABASE_URL benar.
-- Untuk Prisma, pastikan migration berhasil dijalankan.
+- **Build gagal**: Cek logs di Railway dashboard.
+- **Database connection**: Pastikan DATABASE_URL benar dan database accessible.
+- **Frontend tidak connect ke backend**: Pastikan VITE_API_URL benar.
+- **Prisma migrate**: Jika migrate gagal, cek schema dan database permissions.
 
 ## 👥 Role & Permissions
 
